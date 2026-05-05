@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Multi Downloader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1117 50%, #0a0a1a 100%);
+            font-family: 'Inter', sans-serif;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(5, 10, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #1a4a8a;
+            padding: 20px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .stats-badge {
+            background: rgba(59, 130, 246, 0.15);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .downloader-card {
+            background: #1a1f2e;
+            border-radius: 24px;
+            border: 1px solid #2a3550;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .card-title h2 {
+            font-size: 28px;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        .card-title p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .platform-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #2a3550;
+            padding-bottom: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .platform-tab {
+            padding: 10px 24px;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 30px;
+        }
+
+        .platform-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #c0c0c0;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: #0f1420;
+            border: 1px solid #2a3550;
+            border-radius: 16px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .site-card {
+            background: #0f1420;
+            border: 1px solid #2a3550;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .site-card:hover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .site-card.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .site-name {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .site-status {
+            font-size: 10px;
+            color: #00c853;
+        }
+
+        .site-type {
+            font-size: 9px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 16px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .download-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 24px;
+            font-size: 13px;
+        }
+
+        .info-box i {
+            margin-right: 8px;
+            color: #3b82f6;
+        }
+
+        .info-box ul {
+            margin-top: 8px;
+            margin-left: 24px;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            background: rgba(220, 38, 38, 0.15);
+            border: 1px solid #dc2626;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: #4a5568;
+            font-size: 12px;
+            border-top: 1px solid #1a2a3a;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .downloader-card { padding: 24px; }
+            .card-title h2 { font-size: 22px; }
+            .sites-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-content">
+        <div class="logo">
+            <h1>Multi Downloader</h1>
+            <p>YouTube | TikTok | Pinterest</p>
+        </div>
+        <div class="stats-badge">
+            <i class="fas fa-globe"></i> 65+ Situs & Tools
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="downloader-card">
+        <div class="card-title">
+            <h2>Multi Downloader</h2>
+            <p>Pilih platform, lalu pilih situs downloader favorite mu</p>
+        </div>
+
+        <div class="platform-tabs">
+            <button class="platform-tab" data-platform="youtube">YouTube</button>
+            <button class="platform-tab" data-platform="tiktok">TikTok</button>
+            <button class="platform-tab active" data-platform="pinterest">Pinterest</button>
+        </div>
+
+        <div class="input-group">
+            <label>URL Video / Pin</label>
+            <input type="text" id="urlInput" class="url-input" placeholder="https://www.pinterest.com/pin/...">
+        </div>
+
+        <div class="sites-grid" id="sitesGrid">
+            <!-- Pinterest sites will be loaded here -->
+        </div>
+
+        <button id="downloadBtn" class="download-btn">
+            <i class="fas fa-download"></i> Buka Downloader
+        </button>
+
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-triangle"></i> <span id="errorText"></span>
+        </div>
+
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i> Informasi
+            <ul id="infoList">
+                <li><strong>20 Situs Pinterest Downloader</strong> - Download video/image dari Pinterest</li>
+                <li>Pinterest Video Downloader, SavePin, PinDownloader adalah yang paling populer</li>
+                <li>Cara pakai: Copy URL pin Pinterest, paste di sini, pilih situs, klik buka</li>
+                <li>Support download video dan gambar (HD quality)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Multi Downloader - 65 tools 1 situs</p>
+        <p style="margin-top: 8px;">100% aman. anda akan di alihkan ke situs yang anda pilih untuk melanjutkan proses download</p>
+    </div>
+</div>
+
+<script>
+    // ========== YOUTUBE SITES (26) ==========
+    const youtubeSites = {
+        yt5s: { name: 'YT5s.com', url: 'https://yt5s.com', type: 'web' },
+        y2mate: { name: 'Y2Mate.nu', url: 'https://y2mate.nu', type: 'web' },
+        cobalt: { name: 'Cobalt.tools', url: 'https://cobalt.tools', type: 'web' },
+        ytmp3gg: { name: 'YTMP3.gg', url: 'https://ytmp3.gg', type: 'web' },
+        loaderfo: { name: 'Loader.fo', url: 'https://loader.fo', type: 'web' },
+        vidssave: { name: 'VidsSave.com', url: 'https://vidssave.com', type: 'web' },
+        mp3juice: { name: 'MP3Juice.la', url: 'https://mp3juice.la', type: 'web' },
+        vd6: { name: 'VD6.com', url: 'https://vd6.com', type: 'web' },
+        slicetube: { name: 'SliceTube.com', url: 'https://slicetube.com', type: 'web' },
+        savemp3: { name: 'SaveMP3.cc', url: 'https://savemp3.cc', type: 'web' },
+        topclipper: { name: 'TopClipper.com', url: 'https://topclipper.com', type: 'web' },
+        offliberty: { name: 'OffLiberty.com', url: 'https://offliberty.com', type: 'web' },
+        downloaderto: { name: 'Downloader.to', url: 'https://downloaderto.com', type: 'web' },
+        yout: { name: 'Yout.com', url: 'https://yout.com', type: 'web' },
+        ytdlp: { name: 'YT-DLP (CLI)', url: 'https://github.com/yt-dlp/yt-dlp', type: 'software' },
+        '4kdownload': { name: '4KDownloader', url: 'https://www.4kdownload.com', type: 'software' },
+        jdownloader: { name: 'JDownloader', url: 'https://jdownloader.org', type: 'software' },
+        freemake: { name: 'Freemake', url: 'https://www.freemake.com/free_video_downloader', type: 'software' },
+        snapdownloader: { name: 'SnapDownloader', url: 'https://snapdownloader.com', type: 'software' },
+        byclick: { name: 'ByClickDownloader', url: 'https://byclickdownloader.com', type: 'software' }
+    };
+
+    // ========== TIKTOK SITES - 20 SITES NO WATERMARK ==========
+    const tiktokSites = {
+        snaptik: { name: 'SnapTik', url: 'https://snaptik.app', type: 'web', note: 'No WM' },
+        ssstik: { name: 'SSSTikTok', url: 'https://ssstik.io', type: 'web', note: 'No WM' },
+        tikvidly: { name: 'TikVidly', url: 'https://tikvidly.com', type: 'web', note: 'No WM' },
+        musicallydown: { name: 'MusicallyDown', url: 'https://musicallydown.com', type: 'web', note: 'No WM' },
+        savett: { name: 'SaveTT', url: 'https://savett.cc', type: 'web', note: 'No WM' },
+        ttdownloader: { name: 'TTDownloader', url: 'https://ttdownloader.com', type: 'web', note: 'No WM' },
+        tiksave: { name: 'TikSave', url: 'https://tiksave.com', type: 'web', note: 'No WM' },
+        downloaderi: { name: 'Downloaderi', url: 'https://downloaderi.com', type: 'web', note: 'No WM' },
+        lovetik: { name: 'Lovetik', url: 'https://lovetik.com', type: 'web', note: 'No WM' },
+        savetik: { name: 'SaveTik', url: 'https://savetik.co', type: 'web', note: 'No WM' },
+        tiktokmate: { name: 'TikTokMate', url: 'https://tiktokmate.com', type: 'web', note: 'No WM' },
+        tiktak: { name: 'TikTak', url: 'https://tiktak.cc', type: 'web', note: 'No WM' },
+        tikmate: { name: 'TikMate', url: 'https://tikmate.cc', type: 'web', note: 'No WM' },
+        tikdown: { name: 'TikDown', url: 'https://tikdown.org', type: 'web', note: 'No WM' },
+        ttsave: { name: 'TTSave', url: 'https://ttsave.app', type: 'web', note: 'No WM' },
+        tikvideo: { name: 'TikVideo', url: 'https://tikvideo.app', type: 'web', note: 'No WM' },
+        tiktokio: { name: 'TikTokio', url: 'https://tiktokio.com', type: 'web', note: 'No WM' },
+        tiktokdl: { name: 'TikTokDL', url: 'https://tiktokdl.app', type: 'web', note: 'No WM' },
+        tiktokdown: { name: 'TikTokDown', url: 'https://tiktokdown.com', type: 'web', note: 'No WM' },
+        tiktoksave: { name: 'TikTokSave', url: 'https://tiktoksave.com', type: 'web', note: 'No WM' }
+    };
+
+    // ========== PINTEREST SITES - 20 SITES ==========
+    const pinterestSites = {
+        // Top 10 utama
+        pinterestvideodownloader: { name: 'Pinterest Video Downloader', url: 'https://pinterestvideodownloader.com', type: 'web', note: 'Video & Image' },
+        savepin: { name: 'SavePin', url: 'https://savepin.app', type: 'web', note: 'Video & Image' },
+        pindownloader: { name: 'PinDownloader', url: 'https://pindownloader.com', type: 'web', note: 'Video & Image' },
+        pinterestdownloader: { name: 'PinterestDownloader', url: 'https://pinterestdownloader.io', type: 'web', note: 'HD Quality' },
+        pinsaver: { name: 'PinSaver', url: 'https://pinsaver.com', type: 'web', note: 'Video & Image' },
+        pinterestvideosaver: { name: 'PinterestVideoSaver', url: 'https://pinterestvideosaver.com', type: 'web', note: 'No Watermark' },
+        pinvid: { name: 'PinVid', url: 'https://pinvid.com', type: 'web', note: 'Video Downloader' },
+        pinterestdownload: { name: 'PinterestDownload', url: 'https://pinterestdownload.com', type: 'web', note: 'Free Tool' },
+        pinsdownload: { name: 'PinsDownload', url: 'https://pinsdownload.com', type: 'web', note: 'Video & Image' },
+        pinssaver: { name: 'PinsSaver', url: 'https://pinssaver.com', type: 'web', note: 'Easy Download' },
+        
+        // Tambahan 10
+        pinterestvideodl: { name: 'PinterestVideoDL', url: 'https://pinterestvideodl.com', type: 'web', note: 'HD Video' },
+        downloadpinterest: { name: 'DownloadPinterest', url: 'https://downloadpinterest.com', type: 'web', note: 'Video & Image' },
+        pinterestvidsave: { name: 'PinterestVidSave', url: 'https://pinterestvidsave.com', type: 'web', note: 'Fast Download' },
+        pinsave: { name: 'PinSave', url: 'https://pinsave.net', type: 'web', note: 'No Registration' },
+        pinteresttool: { name: 'PinterestTool', url: 'https://pinteresttool.com', type: 'web', note: 'Multi Format' },
+        pinterestget: { name: 'PinterestGet', url: 'https://pinterestget.com', type: 'web', note: 'Video Downloader' },
+        pinsdownloader: { name: 'PinsDownloader', url: 'https://pinsdownloader.com', type: 'web', note: 'Free Tool' },
+        pinterestvid: { name: 'PinterestVid', url: 'https://pinterestvid.com', type: 'web', note: 'Easy to Use' },
+        savespin: { name: 'SaveSpin', url: 'https://savespin.com', type: 'web', note: 'Video & Image' },
+        pintrestdownloader: { name: 'PintrestDownloader', url: 'https://pintrestdownloader.org', type: 'web', note: 'Alternative' }
+    };
+
+    let currentPlatform = 'pinterest';
+    let currentSite = 'pinterestvideodownloader';
+
+    const urlInput = document.getElementById('urlInput');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    const sitesGrid = document.getElementById('sitesGrid');
+    const infoList = document.getElementById('infoList');
+
+    // Platform tabs
+    document.querySelectorAll('.platform-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentPlatform = tab.dataset.platform;
+            
+            if (currentPlatform === 'youtube') {
+                currentSite = 'cobalt';
+                renderSites(youtubeSites);
+                infoList.innerHTML = `
+                    <li><strong>26 Situs & Tools YouTube Downloader</strong></li>
+                    <li>Cobalt.tools: Rekomendasi terbaik, tanpa iklan, support 4K</li>
+                    <li>YT5s.com / Y2Mate.nu: Alternatif stabil untuk MP3/MP4</li>
+                    <li>YT-DLP: CLI tool terbaik untuk pengguna advanced</li>
+                `;
+                urlInput.placeholder = "https://www.youtube.com/watch?v=...";
+            } else if (currentPlatform === 'tiktok') {
+                currentSite = 'snaptik';
+                renderSites(tiktokSites);
+                infoList.innerHTML = `
+                    <li><strong>20 Situs TikTok No Watermark - Hasil TANPA LOGO</strong></li>
+                    <li>SnapTik, TikVidly, SSSTikTok: Paling populer & stabil</li>
+                    <li>MusicallyDown: Support Full HD, 2K, 4K</li>
+                    <li>Semua situs support download video tanpa watermark</li>
+                `;
+                urlInput.placeholder = "https://www.tiktok.com/@username/video/...";
+            } else {
+                currentSite = 'pinterestvideodownloader';
+                renderSites(pinterestSites);
+                infoList.innerHTML = `
+                    <li><strong>20 Situs Pinterest Downloader</strong> - Download video & gambar dari Pinterest</li>
+                    <li>Pinterest Video Downloader, SavePin, PinDownloader: Paling populer</li>
+                    <li>Support download video HD dan gambar kualitas asli</li>
+                    <li>Cara pakai: Copy URL pin Pinterest (bisa dari browser atau app)</li>
+                    <li>Paste URL di sini, klik tombol, nanti arahkan ke situs downloader</li>
+                    <li>Di situs tersebut, paste lagi URL pin, lalu download</li>
+                `;
+                urlInput.placeholder = "https://www.pinterest.com/pin/123456789...";
+            }
+        });
+    });
+
+    function renderSites(sites) {
+        const sitesArray = Object.entries(sites);
+        sitesGrid.innerHTML = sitesArray.map(([key, site]) => `
+            <div class="site-card ${currentSite === key ? 'active' : ''}" data-site="${key}">
+                <div class="site-name">${site.name}</div>
+                <div class="site-status">${site.note || 'Online'}</div>
+                <div class="site-type">${site.type === 'web' ? 'Web Based' : 'Software'}</div>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.site-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.site-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                currentSite = card.dataset.site;
+            });
+        });
+    }
+
+    function isValidUrl(url, platform) {
+        if (platform === 'youtube') {
+            return url && (url.includes('youtube.com') || url.includes('youtu.be'));
+        } else if (platform === 'tiktok') {
+            return url && (url.includes('tiktok.com') || url.includes('vm.tiktok'));
+        } else {
+            return url && (url.includes('pinterest.com') || url.includes('pin.it'));
+        }
+    }
+
+    function showError(message) {
+        errorText.innerText = message;
+        errorMessage.classList.add('show');
+        setTimeout(() => errorMessage.classList.remove('show'), 5000);
+    }
+
+    function download() {
+        const url = urlInput.value.trim();
+        
+        if (!url) {
+            showError('Masukkan URL terlebih dahulu');
+            return;
+        }
+        
+        if (!isValidUrl(url, currentPlatform)) {
+            showError(`URL ${currentPlatform === 'youtube' ? 'YouTube' : currentPlatform === 'tiktok' ? 'TikTok' : 'Pinterest'} tidak valid`);
+            return;
+        }
+        
+        let siteUrl = '';
+        
+        if (currentPlatform === 'youtube') {
+            const site = youtubeSites[currentSite];
+            if (site) siteUrl = site.url;
+        } else if (currentPlatform === 'tiktok') {
+            const site = tiktokSites[currentSite];
+            if (site) siteUrl = site.url;
+        } else {
+            const site = pinterestSites[currentSite];
+            if (site) siteUrl = site.url;
+        }
+        
+        if (siteUrl) {
+            window.open(siteUrl, '_blank');
+        } else {
+            showError('Situs tidak ditemukan');
+        }
+    }
+
+    // Initialize with Pinterest sites (active tab)
+    renderSites(pinterestSites);
+    document.querySelector('.platform-tab[data-platform="pinterest"]').classList.add('active');
+
+    downloadBtn.addEventListener('click', download);
+    urlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') download();
+    });
+</script>
+</body>
+</html>
